@@ -148,8 +148,8 @@
         let obstacleInterval;
         let jumpCount = 0;
     
-        document.addEventListener('keydown', (event) => {
-            if (gameStarted && event.keyCode === 32) { // Tecla espacio para saltar
+        document.addEventListener('touchstart', () => {
+            if (gameStarted) {
                 jump();
             }
         });
@@ -171,8 +171,8 @@
                 if (obstaclePosition < -50) { // Si el obstáculo sale de la pantalla
                     obstaclePosition = 100; // Lo reinicia al otro lado
                 }
-                               // Detección de colisión con el personaje
-                               if (
+                // Detección de colisión con el personaje
+                if (
                     obstaclePosition < 15 &&
                     obstaclePosition > -50 &&
                     dairita.offsetTop < 100 &&
@@ -199,5 +199,4 @@
             document.getElementById('game-container').style.display = 'block';
         }
     </script>
-    </body>
-    </html>
+    
