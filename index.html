@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Juego de Dairita</title>
+<style>
+    body {
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        background-color: #000; /* Negro */
+    }
+    .clouds {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 300%;
+        height: 100%;
+        animation: cloudsMove 120s linear infinite;
+        z-index: -1; /* Para poner las nubes detrás de todo */
+    }
+
+    @keyframes cloudsMove {
+        0% {
+            transform: translateX(0%);
+        }
+        100% {
+            transform: translateX(-200%);
+        }
+    }
+
+    .cloud-layer {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url('https://img.freepik.com/vector-gratis/coleccion-nubes-dibujadas-mano_52683-68002.jpg');
+        z-index: -2;
+    }
+
+    .stars {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 300%;
+        height: 100%;
+        animation: starsMove 240s linear infinite;
+        z-index: -3; /* Para poner las estrellas detrás de las nubes */
+    }
+
+    @keyframes starsMove {
+        0% {
+            transform: translateX(0%);
+        }
+        100% {
+            transform: translateX(-200%);
+        }
+    }
+
+    .stars-layer {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url('https://img.freepik.com/vector-premium/espacio-estrellas-universo-espacio-infinito-fondo_78474-99.jpg');
+    }
+
+    #start-screen {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        border: 2px solid #fff;
+        padding: 20px;
+        background-color: rgba(0, 0, 0, 0.5); /* Fondo semitransparente */
+    }
+    #game-container {
+        width: 100vw;
+        height: 100vh;
+        position: relative;
+        display: none;
+    }
+    #dairita {
+        background-image: url('https://i.gifer.com/origin/c1/c1cca783c231e1f294f9cabf542460c2_w200.gif');
+        background-size: contain;
+        width: 100px;
+        height: 100px;
+        position: absolute;
+        top: 50%;
+        left: calc(50vw - 50px); /* Centrar horizontalmente */
+        transform: translate(-50%, -50%); /* Centrar verticalmente */
+        transition: top 0.1s ease, left 0.1s ease;
+    }
+    #obstacle {
+        background-image: url('https://static.vecteezy.com/system/resources/previews/019/607/050/original/strawberry-graphic-clipart-design-free-png.png');
+        background-size: contain;
+        width: 50px;
+        height: 50px;
+        position: absolute;
+        top: 50%;
+        left: 100%; /* Comienza fuera de la pantalla */
+    }
+    #score {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        color: #ffcc00; /* Color brillante */
+        font-size: 24px;
+    }
+</style>
+</head>
+<body>
+<div class="clouds">
+    <div class="cloud-layer"></div>
+    <div class="cloud-layer"></div>
+    <div class="cloud-layer"></div>
+</div>
+<div class="stars">
+    <div class="stars-layer"></div>
+    <div class="stars-layer"></div>
+    <div class="stars-layer"></div>
+</div>
+<div id="start-screen">
+    <h1 style="color: #fff;">Dairita, bienvenida a tu juego</h1>
+    <img src="https://i.gifer.com/origin/9b/9b8f58ea1862f0cd2e70b809d44b91df_w200.gif" alt="Dairita" style="width: 200px; height: 200px;">
+    <br>
+    <button onclick="startGame()" style="margin-top: 20px;">Jugar</button>
+</div>
+<div id="game-container">
+    <div id="dairita"></div>
+    <div id="obstacle"></div>
+    <div id="score">Saltos
+        : <span id="jumpCount" style="color: #ffcc00;">0</span></div>
+    </div>
+    
+    <script>
+        const dairita = document.getElementById('dairita');
+        const obstacle = document.getElementById('obstacle');
+        const jumpCountDisplay = document.getElementById('jumpCount');
+        let gameStarted = false;
+        let obstacleInterval;
+        let jumpCount = 0;
+    
+        document.addEventListener('keydown', (event) => {
+            if (gameStarted && event.keyCode === 32) { // Tecla espacio para saltar
+                jump();
+            }
+        });
+    
+        function jump() {
+            dairita.style.top = '30%'; // Altura del salto
+            setTimeout(() => {
+                dairita.style.top = '50%';
+            }, 300); // Duración del salto
+            jumpCount++;
+            jumpCountDisplay.textContent = jumpCount;
+        }
+    
+        function moveObstacle() {
+            let obstaclePosition = 100; // Inicia fuera de la pantalla
+            obstacleInterval = setInterval(() => {
+                obstaclePosition -= 2; // Velocidad del obstáculo
+                obstacle.style.left = `${obstaclePosition}%`;
+                if (obstaclePosition < -50) { // Si el obstáculo sale de la pantalla
+                    obstaclePosition = 100; // Lo reinicia al otro lado
+                }
+                // Detección de colisión con el personaje
+                if (
+                    obstaclePosition < 15 &&
+                    obstaclePosition > -50 &&
+                    dairita.offsetTop < 100 &&
+                    dairita.offsetTop + dairita.offsetHeight > obstacle.offsetTop &&
+                    dairita.offsetLeft + dairita.offsetWidth > obstacle.offsetLeft
+                ) {
+                    endGame(); // Llama a la función endGame cuando hay colisión
+                }
+            }, 20); // Intervalo de movimiento
+        }
+    
+        function endGame() {
+            alert(`¡Perdiste!`);
+            clearInterval(obstacleInterval); // Detiene el movimiento del obstáculo
+            gameStarted = false;
+            document.getElementById('start-screen').style.display = 'block';
+            document.getElementById('game-container').style.display = 'none';
+        }
+    
+        function startGame() {
+            gameStarted = true;
+            moveObstacle(); // Inicia el movimiento del obstáculo
+            document.getElementById('start-screen').style.display = 'none';
+            document.getElementById('game-container').style.display = 'block';
+        }
+    </script>
+    </body>
+    </html>
+    
